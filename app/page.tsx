@@ -2,7 +2,7 @@
 
 /**
  * ewhagram (이화그램) - 메인 앱 컴포넌트
- * Ewha Womans University Instagram-like Mini App with Farcaster Mini App SDK & mint.club v2
+ * Ewha Univ Instagram-like Mini App with Farcaster Mini App SDK & mint.club v2
  *
  * 주요 기능:
  * - Farcaster Mini App SDK 연동으로 사용자 정보 가져오기
