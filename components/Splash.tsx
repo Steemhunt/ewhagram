@@ -36,7 +36,7 @@ export default function Splash({ onStart }: SplashProps) {
           width={112}
           height={112}
           priority
-          className="drop-shadow-md"
+          className="drop-shadow-md pointer-events-none"
         />
         <motion.button
           onClick={onStart}

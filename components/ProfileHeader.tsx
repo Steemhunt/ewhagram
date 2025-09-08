@@ -116,7 +116,7 @@ export default function ProfileHeader({
               {userData.userName}
             </motion.h1>
 
-            {/* 토큰 상태에 따른 버튼 표시 */}
+            {/* 토큰 상태에 따른 표시: 토큰 있을 때만 배지 노출 */}
             {userToken ? (
               <motion.div
                 className="text-sm px-3 py-1 rounded-full text-white font-medium bg-ewha-600"
@@ -126,20 +126,7 @@ export default function ProfileHeader({
               >
                 활성화됨
               </motion.div>
-            ) : (
-              <motion.button
-                onClick={onActivate}
-                disabled={checkingToken || !userData.userName}
-                className="px-4 py-1 text-sm font-medium text-white rounded-md disabled:opacity-50 bg-ewha-600 hover:bg-ewha-700"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ ...spring.stiff }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                {checkingToken ? "확인 중..." : "활성화"}
-              </motion.button>
-            )}
+            ) : null}
           </div>
 
           <motion.p

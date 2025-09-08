@@ -20,6 +20,7 @@ import { usePosts } from "@/hooks/usePosts";
 import { useUserToken } from "@/hooks/useUserToken";
 
 // 컴포넌트들
+import ActivationBanner from "@/components/ActivationBanner";
 import CreatePostModal from "@/components/CreatePostModal";
 import PostGrid from "@/components/PostGrid";
 import ProfileHeader from "@/components/ProfileHeader";
@@ -139,6 +140,14 @@ export default function App() {
                 userToken={userToken}
                 checkingToken={checkingToken}
                 onActivate={handleActivate}
+              />
+
+              {/* 활성화 배너 - 토큰이 없을 때만 표시 */}
+              <ActivationBanner
+                checkingToken={checkingToken}
+                hasToken={!!userToken}
+                onActivate={handleActivate}
+                username={username}
               />
 
               {/* 포스트 그리드 */}
