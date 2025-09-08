@@ -27,8 +27,8 @@ ewhagram은 이화여자대학교 감성을 담은 Instagram 스타일 미니 �
 
 1. **저장소 클론**
    ```bash
-   git clone https://github.com/steemhunt/estagram.git
-   cd yeonstagram
+   git clone https://github.com/steemhunt/ewhagram.git
+   cd ewhagram
    ```
 
 2. **의존성 설치**
@@ -80,23 +80,26 @@ ewhagram은 이화여자대학교 감성을 담은 Instagram 스타일 미니 �
 ## 🏗️ 프로젝트 구조
 
 ```
-src/
+./
 ├── app/
-│   ├── page.tsx          # 메인 앱 컴포넌트
-│   └── layout.tsx        # 레이아웃 설정
+│   ├── page.tsx             # 메인 앱 컴포넌트
+│   └── layout.tsx           # 레이아웃 설정
 ├── components/
-│   ├── ProfileHeader.tsx # 프로필 헤더 컴포넌트
-│   ├── PostGrid.tsx      # 포스트 그리드 컴포넌트
-│   └── CreatePostModal.tsx # 포스트 생성 모달
+│   ├── ActivationBanner.tsx # 토큰 미보유 시 활성화 배너 (프로필 아래)
+│   ├── ProfileHeader.tsx    # 프로필 헤더 (보유 시 "활성화됨" 배지)
+│   ├── PostGrid.tsx         # 포스트 그리드 컴포넌트
+│   └── CreatePostModal.tsx  # 포스트 생성 모달
 ├── hooks/
-│   ├── useUserToken.ts   # 사용자 토큰 관리 훅
-│   └── usePosts.ts       # 포스트 관리 훅
+│   ├── useUserToken.ts      # 사용자 토큰 관리 훅
+│   └── usePosts.ts          # 포스트 관리 훅
+├── lib/
+│   └── animations.ts        # 모션/애니메이션 유틸
 ├── types/
-│   └── index.ts          # TypeScript 타입 정의
+│   └── index.ts             # TypeScript 타입 정의
 ├── constants/
-│   └── index.ts          # 앱 상수 및 설정값
+│   └── index.ts             # 앱 상수 및 설정값
 └── server/
-    └── ipfs.ts           # IPFS 업로드 서버 액션
+    └── ipfs.ts              # IPFS 업로드 서버 액션
 ```
 
 ## 🔧 주요 기능
@@ -164,8 +167,12 @@ const { posts, loadingPosts, imageErrors, loadUserPosts, handleImageError } = us
 
 #### `ProfileHeader.tsx`
 - Farcaster 프로필 정보 표시
-- 토큰 활성화 버튼
-- 토큰 상태 표시
+- 토큰 상태 표시 (보유 시 "활성화됨" 배지)
+
+#### `ActivationBanner.tsx`
+- 프로필 섹션 바로 아래에 표시되는 배너
+- 사용자가 크리에이터 코인을 아직 보유하지 않은 경우에만 노출
+- 좌측 설명 텍스트 + 우측 "활성화" 버튼 (EWHA 그린 강조, 애니메이션 보더)
 
 #### `PostGrid.tsx`
 - 3열 그리드 레이아웃
@@ -201,8 +208,8 @@ const { posts, loadingPosts, imageErrors, loadUserPosts, handleImageError } = us
 
 #### 1. 프로젝트 클론 및 설치
 ```bash
-git clone https://github.com/your-repo/yeonstagram.git
-cd yeonstagram
+git clone https://github.com/steemhunt/ewhagram.git
+cd ewhagram
 npm install
 ```
 
@@ -230,20 +237,8 @@ NEXT_PUBLIC_FILEBASE_API_KEY=당신의_API_키
 npm run dev
 ```
 
-#### 5. 로컬 터널 설정 (Farcaster 테스트용)
-Farcaster 미리보기 도구에서 접근 가능한 URL이 필요합니다. 이 프로젝트는 dev 스크립트가 LocalTunnel을 자동 설정합니다.
-
-```bash
-# .env.local 에 추가 (또는 쉘에서 내보내기)
-USE_TUNNEL=true
-
-# 개발 서버 실행 (포트 옵션)
-npm run dev -- --port 3000
-```
-
-**접속 URL:**
-- 로컬: `http://localhost:3000`
-- 외부: dev 실행 시 터미널에 출력되는 `https://<subdomain>.loca.lt`
+#### 5. 로컬 터널 설정 (선택사항)
+Farcaster 미리보기/실기기 테스트용으로 외부 접근 URL이 필요하면 상단의 ngrok 설치 가이드를 사용하세요. 터널 실행 후 표시되는 HTTPS URL을 사용하면 됩니다.
 
 ---
 
@@ -408,7 +403,6 @@ await /* TODO: checkUserToken 함수 호출 */ username; // 수정 필요
 3. **"Insufficient Funds"**: [Base Sepolia ETH](https://www.alchemy.com/faucets/base-sepolia) 필요
 4. **"Token Already Exists"**: 다른 사용자명으로 시도
 5. **빌드 에러**: TODO 주석이 코드 중간에 있으면 안됨 (실제 값으로 교체)
-6. **Farcaster 연결 안됨**: `USE_TUNNEL=true npm run dev`로 터널 URL 사용 필요 (`*.loca.lt`)
 7. **터널 연결 실패**: `ngrok` 설치 확인 또는 다른 터미널에서 실행
 8. **색상 테마가 바뀌지 않음**: 강력 새로고침(Shift+Reload) 또는 캐시 비우기 후 확인
 
