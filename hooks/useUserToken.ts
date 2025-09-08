@@ -30,7 +30,7 @@ export const useUserToken = () => {
       // TODO: 토큰 심볼 생성 - `EWHA${username.toUpperCase()}`
       // const tokenSymbol = `EWHATEST`;
 
-      const tokenSymbol = `EWHA${username.toUpperCase()}`;
+      const tokenSymbol = createTokenSymbol(username);
       // TODO: mint.club SDK로 토큰 존재 여부 확인
       // mintclub.network(NETWORK.BASE_SEPOLIA).token(tokenSymbol).exists()
       const exists = await mintclub

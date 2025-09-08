@@ -16,7 +16,7 @@ import { mintclub } from "mint.club-v2-sdk";
 import { motion } from "motion/react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useAccount, useSwitchChain, useWalletClient } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 
 export default function CreatePostModal({
   userToken,
@@ -31,10 +31,10 @@ export default function CreatePostModal({
   const { address, chain } = useAccount();
   const { switchChain } = useSwitchChain();
 
-  const { data: walletClient } = useWalletClient({
-    account: address,
-    chainId: Number(NETWORK.BASE_SEPOLIA),
-  });
+  // const { data: walletClient } = useWalletClient({
+  //   account: address,
+  //   chainId: Number(NETWORK.BASE_SEPOLIA),
+  // });
 
   /**
    * 체인 확인 및 전환
@@ -405,7 +405,7 @@ export default function CreatePostModal({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: timing.normal }}
         >
-          <label className="block text-sm font-medium text-gray-700 mb-2 text-instagram-body">
+          <label className="block text-sm font-medium text-white mb-2 text-instagram-body">
             포스트 이름
           </label>
           <motion.input
@@ -413,7 +413,7 @@ export default function CreatePostModal({
             value={postName}
             onChange={(e) => setPostName(e.target.value)}
             placeholder="포스트 이름을 입력하세요"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ewha-600 text-instagram-body"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ewha-600 text-black"
             whileFocus={{ scale: 1.02 }}
             transition={{ ...spring.smooth }}
           />

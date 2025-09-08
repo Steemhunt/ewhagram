@@ -62,4 +62,4 @@ export const TOAST_MESSAGES = {
 
 // 유틸리티 함수들
 export const createTokenSymbol = (username: string): string =>
-  `BASE${username.toUpperCase()}`;
+  `AWHA${username.toUpperCase()}`;

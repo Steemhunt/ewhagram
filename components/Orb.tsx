@@ -6,6 +6,7 @@ interface OrbProps {
   hoverIntensity?: number;
   rotateOnHover?: boolean;
   forceHoverState?: boolean;
+  isHover?: boolean;
 }
 
 export default function Orb({
@@ -13,6 +14,7 @@ export default function Orb({
   hoverIntensity = 0.2,
   rotateOnHover = true,
   forceHoverState = false,
+  isHover = false,
 }: OrbProps) {
   const ctnDom = useRef<HTMLDivElement>(null);
 
@@ -162,8 +164,10 @@ export default function Orb({
       float c = cos(angle);
       uv = vec2(c * uv.x - s * uv.y, s * uv.x + c * uv.y);
       
-      uv.x += hover * hoverIntensity * 0.1 * sin(uv.y * 10.0 + iTime);
-      uv.y += hover * hoverIntensity * 0.1 * sin(uv.x * 10.0 + iTime);
+      // hover 상태를 반전시켜서 적용
+      float invertedHover = 1.0 - hover;
+      uv.x += invertedHover * hoverIntensity * 0.1 * sin(uv.y * 10.0 + iTime);
+      uv.y += invertedHover * hoverIntensity * 0.1 * sin(uv.x * 10.0 + iTime);
       
       return draw(uv);
     }
@@ -263,11 +267,13 @@ export default function Orb({
       program.uniforms.hue.value = hue;
       program.uniforms.hoverIntensity.value = hoverIntensity;
 
-      const effectiveHover = forceHoverState ? 1 : targetHover;
+      // isHover prop이 true이면 hover 상태로, forceHoverState나 targetHover도 고려
+      const effectiveHover = forceHoverState || isHover ? 1 : targetHover;
       program.uniforms.hover.value +=
         (effectiveHover - program.uniforms.hover.value) * 0.1;
 
-      if (rotateOnHover && effectiveHover > 0.5) {
+      // rotateOnHover 로직도 반전 - hover 상태가 아닐 때 회전
+      if (rotateOnHover && effectiveHover < 0.5) {
         currentRot += dt * rotationSpeed;
       }
       program.uniforms.rot.value = currentRot;
@@ -284,7 +290,7 @@ export default function Orb({
       container.removeChild(gl.canvas);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [hue, hoverIntensity, rotateOnHover, forceHoverState]);
+  }, [hue, hoverIntensity, rotateOnHover, forceHoverState, isHover]);
 
   return <div ref={ctnDom} className="w-full h-full" />;
 }
