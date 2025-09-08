@@ -2,7 +2,9 @@
 
 Ewha-themed Instagram-like Mini App with Farcaster Mini App SDK & mint.club v2
 
-![Yeonstagram Preview](https://cdn.discordapp.com/attachments/995243442261217361/1402904525190463538/Screenshot_2025-08-07_at_15.41.25.png?ex=68959c27&is=68944aa7&hm=76858284f3c8412a5bee4406fa9d49001d3c30815885f615e4a570242a192a5f&)
+![Ewhagram Preview](https://media.discordapp.net/attachments/995243442261217361/1414641023589552198/Screenshot_2025-09-09_at_00.58.18.png?ex=68c04e9e&is=68befd1e&hm=b0d85d622390e47c706dde341947b8e17fc6bbac7f76e2e26af16450c271073e&=&format=webp&quality=lossless&width=682&height=742)
+
+![Ewhagram Preview 2](https://media.discordapp.net/attachments/995243442261217361/1414644917187121264/Screenshot_2025-09-09_at_01.13.43.png?ex=68c0523f&is=68bf00bf&hm=b069d3f7bdec8fa1f7dcee15e4ba645164b53406a08576d14cc3d5cd389c1cca&=&format=webp&quality=lossless&width=706&height=815)
 
 ## 🌟 프로젝트 소개
 
@@ -25,7 +27,7 @@ ewhagram은 이화여자대학교 감성을 담은 Instagram 스타일 미니 �
 
 1. **저장소 클론**
    ```bash
-   git clone https://github.com/steemhunt/yeonstagram.git
+   git clone https://github.com/steemhunt/estagram.git
    cd yeonstagram
    ```
 
