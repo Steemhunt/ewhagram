@@ -5,6 +5,7 @@
 
 import {
   NETWORK,
+  TEST_EWHA_TOKEN_ADDRESS,
   TOAST_MESSAGES,
   USER_TOKEN_CONFIG,
   createTokenSymbol,
@@ -32,9 +33,9 @@ export const useUserToken = () => {
 
       const tokenSymbol = createTokenSymbol(username);
       // TODO: mint.club SDK로 토큰 존재 여부 확인
-      // mintclub.network(NETWORK.BASE_SEPOLIA).token(tokenSymbol).exists()
+      // mintclub.network(NETWORK.BASE).token(tokenSymbol).exists()
       const exists = await mintclub
-        .network(NETWORK.BASE_SEPOLIA)
+        .network(NETWORK.BASE)
         .token(tokenSymbol)
         .exists();
 
@@ -42,7 +43,7 @@ export const useUserToken = () => {
         console.log("토큰이 존재합니다! 상세 정보를 가져옵니다...");
 
         const tokenDetail = await mintclub
-          .network(NETWORK.BASE_SEPOLIA)
+          .network(NETWORK.BASE)
           .token(tokenSymbol)
           .getDetail();
 
@@ -88,14 +89,14 @@ export const useUserToken = () => {
 
     try {
       // TODO: mint.club 토큰 생성
-      // mintclub.network(NETWORK.BASE_SEPOLIA).token(tokenSymbol).create({...})
+      // mintclub.network(NETWORK.BASE).token(tokenSymbol).create({...})
       const result = await mintclub
-        .network(NETWORK.BASE_SEPOLIA)
+        .network(NETWORK.BASE)
         .token(tokenSymbol)
         .create({
           name: tokenSymbol,
           reserveToken: {
-            address: NETWORK.ETH_ADDRESS,
+            address: TEST_EWHA_TOKEN_ADDRESS,
             decimals: USER_TOKEN_CONFIG.DECIMALS,
           },
           curveData: {
@@ -104,6 +105,32 @@ export const useUserToken = () => {
             maxSupply: USER_TOKEN_CONFIG.MAX_SUPPLY,
             initialMintingPrice: USER_TOKEN_CONFIG.INITIAL_PRICE,
             finalMintingPrice: USER_TOKEN_CONFIG.FINAL_PRICE,
+          },
+          onSignatureRequest: () => {
+            console.log("✍️ 사용자 토큰 서명 요청");
+          },
+          onSigned: (tx) => {
+            console.log("📨 사용자 토큰 트랜잭션 전송:", tx);
+          },
+          onSuccess: async (receipt) => {
+            console.log("✅ 사용자 토큰 생성 onSuccess 영수증:", receipt);
+            // Poll until token exists to provide better UX
+            try {
+              const maxAttempts = 10;
+              for (let i = 0; i < maxAttempts; i++) {
+                const exists = await mintclub
+                  .network(NETWORK.BASE)
+                  .token(tokenSymbol)
+                  .exists();
+                if (exists) {
+                  await checkUserToken(username);
+                  break;
+                }
+                await new Promise((r) => setTimeout(r, 2000));
+              }
+            } catch (e) {
+              console.error("토큰 존재 확인 중 오류:", e);
+            }
           },
         });
       // const result = false;
@@ -115,7 +142,7 @@ export const useUserToken = () => {
         toast.success(TOAST_MESSAGES.TOKEN_SUCCESS, { id: "token-creation" });
 
         // TODO: 토큰 상태 새로고침 - checkUserToken(username) 호출
-        await /* TODO: checkUserToken 함수 호출 */ username;
+        await checkUserToken(username);
         return true;
       }
 
@@ -132,7 +159,7 @@ export const useUserToken = () => {
           id: "token-creation",
         });
       } else if (errorMessage.includes("insufficient funds")) {
-        toast.error("잔액이 부족합니다. Base Sepolia ETH가 필요합니다.", {
+        toast.error("잔액이 부족합니다. Base 메인넷 ETH가 필요합니다.", {
           id: "token-creation",
         });
       } else if (errorMessage.includes("already exists")) {

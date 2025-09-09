@@ -1,12 +1,16 @@
 import "./theme.css";
 // removed onchainkit styles
+import FooterNav from "@/components/FooterNav";
+import GlobalModals from "@/components/GlobalModals";
+import GlobalSplash from "@/components/GlobalSplash";
 import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { Providers } from "./providers";
 
-// Configure Instagram-style fonts
+// KR: 인스타그램 스타일 폰트 구성
+// EN: Configure Instagram-like fonts
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -26,6 +30,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+// KR: Mini App 메타데이터 구성 (URL/스플래시 등은 환경변수로 주입)
+// EN: Build Mini App metadata from env vars
 export async function generateMetadata(): Promise<Metadata> {
   const URL = process.env.NEXT_PUBLIC_URL;
   return {
@@ -62,7 +68,12 @@ export default function RootLayout({
       <body
         className={`bg-background text-white ${inter.variable} ${poppins.variable} font-sans`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <GlobalSplash />
+          <div className="pb-24">{children}</div>
+          <GlobalModals />
+        </Providers>
+        <FooterNav />
         <Toaster
           position="top-center"
           toastOptions={{

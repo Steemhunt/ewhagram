@@ -1,6 +1,6 @@
 /**
- * 포스트 생성 모달 컴포넌트
- * 이미지 업로드 및 NFT 포스트 생성 기능
+ * KR: 포스트 생성 모달 - 이미지 업로드 → 메타데이터 업로드 → NFT 생성 순서로 진행합니다.
+ * EN: Create Post Modal - Upload image → upload metadata → create NFT.
  */
 
 import {
@@ -9,14 +9,21 @@ import {
   NFT_CONFIG,
   TOAST_MESSAGES,
 } from "@/constants";
+import { usePosts } from "@/hooks/usePosts";
 import { modalContent, modalOverlay, spring, timing } from "@/lib/animations";
 import { CreatePostModalProps } from "@/types";
 import imageCompression from "browser-image-compression";
 import { mintclub } from "mint.club-v2-sdk";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useAccount, useSwitchChain } from "wagmi";
+import { base } from "viem/chains";
+import {
+  useAccount,
+  usePublicClient,
+  useSwitchChain,
+  useWalletClient,
+} from "wagmi";
 
 export default function CreatePostModal({
   userToken,
@@ -30,14 +37,77 @@ export default function CreatePostModal({
   const [creating, setCreating] = useState(false);
   const { address, chain } = useAccount();
   const { switchChain } = useSwitchChain();
+  const publicClient = usePublicClient();
+
+  // Note: We rely on the SDK to use the active wallet after network switch
+
+  // KR: 트랜잭션 상태 추적(유휴 시 수동 영수증 확인)
+  // EN: Track tx state and fallback to manual receipt check
+  const txHashRef = useRef<`0x${string}` | null>(null);
+  const idleTimerRef = useRef<number | null>(null);
+  const { data: walletClient } = useWalletClient({
+    account: address,
+    chainId: base.id,
+  });
+
+  const sdk = walletClient
+    ? mintclub.withWalletClient({ ...walletClient, chain: base })
+    : mintclub;
+
+  const { refreshPosts } = usePosts();
+
+  const clearIdleTimer = () => {
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = null;
+    }
+  };
+
+  const scheduleIdleRefresh = () => {
+    clearIdleTimer();
+    idleTimerRef.current = window.setTimeout(async () => {
+      if (!txHashRef.current || !publicClient) return;
+      console.log(
+        "⏳ 20초 동안 영수증 확인 대기 중. 수동 새로고침 시도:",
+        txHashRef.current
+      );
+      toast.loading("상태 새로고침 중...", { id: "tx-refresh" });
+      try {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHashRef.current,
+          pollingInterval: 2000,
+          timeout: 60000,
+          confirmations: 1,
+        });
+        console.log("🔁 수동 새로고침으로 영수증 확인:", receipt);
+        toast.success("트랜잭션이 확인되었습니다.", { id: "tx-refresh" });
+        clearIdleTimer();
+        try {
+          if (userToken?.tokenAddress) {
+            refreshPosts(userToken.tokenAddress);
+          }
+        } catch (e) {
+          console.error("포스트 새로고침 중 오류:", e);
+        }
+        toast.success(TOAST_MESSAGES.POST_SUCCESS, { id: "post-creation" });
+        onSuccess();
+      } catch (e) {
+        console.error("수동 영수증 대기 실패:", e);
+        toast.error("영수증 확인에 실패했습니다. 잠시 후 다시 시도해주세요.", {
+          id: "tx-refresh",
+        });
+      }
+    }, 10000);
+  };
 
   // const { data: walletClient } = useWalletClient({
   //   account: address,
-  //   chainId: Number(NETWORK.BASE_SEPOLIA),
+  //   chainId: base.id,
   // });
 
   /**
-   * 체인 확인 및 전환
+   * KR: 체인 확인 및 전환(Base 고정)
+   * EN: Ensure on Base network and switch if needed
    */
   const ensureCorrectChain = async (): Promise<boolean> => {
     if (!chain) {
@@ -45,16 +115,16 @@ export default function CreatePostModal({
       return false;
     }
 
-    if (chain.id !== Number(NETWORK.BASE_SEPOLIA)) {
+    if (chain.id !== base.id) {
       try {
         console.log(
-          `🔄 현재 체인 ${chain.id}에서 Base Sepolia (${NETWORK.BASE_SEPOLIA})로 전환 중...`
+          `🔄 현재 체인 ${chain.id}에서 Base (${base.id})로 전환 중...`
         );
-        toast.loading("Base Sepolia 네트워크로 전환 중...", {
+        toast.loading("Base 네트워크로 전환 중...", {
           id: "chain-switch",
         });
 
-        await switchChain({ chainId: Number(NETWORK.BASE_SEPOLIA) });
+        await switchChain({ chainId: base.id });
         toast.success("네트워크가 전환되었습니다.", { id: "chain-switch" });
         return true;
       } catch (error) {
@@ -68,7 +138,8 @@ export default function CreatePostModal({
   };
 
   /**
-   * 파일 선택 처리
+   * KR: 파일 선택 처리(미리보기 설정 포함)
+   * EN: Handle file input and set preview
    */
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -83,9 +154,8 @@ export default function CreatePostModal({
   };
 
   /**
-   * 이미지를 IPFS에 업로드
-   * @param file 업로드할 이미지 파일
-   * @returns IPFS 해시
+   * KR: 이미지를 압축 후 Filebase로 업로드해 IPFS URL을 반환합니다.
+   * EN: Compress image and upload via Filebase, returning IPFS URL.
    */
   const uploadToIPFS = async (file: File): Promise<string> => {
     try {
@@ -111,10 +181,15 @@ export default function CreatePostModal({
   };
 
   /**
-   * NFT 포스트 생성
+   * KR: NFT 포스트 생성 전체 플로우
+   * EN: Full flow to create an NFT post
    */
   const handleCreate = async () => {
     console.log("🚀 NFT 포스트 생성 시작");
+    console.log("🔗 현재 체인 정보:", {
+      currentChainId: chain?.id,
+      expected: base.id,
+    });
     console.log("📝 입력 데이터:", {
       postName,
       hasFile: !!selectedFile,
@@ -147,6 +222,8 @@ export default function CreatePostModal({
     if (!chainSwitched) {
       return;
     }
+    // Small delay to ensure providers & SDK pick up the switched network
+    await new Promise((r) => setTimeout(r, 300));
 
     setCreating(true);
     try {
@@ -214,19 +291,41 @@ export default function CreatePostModal({
       toast.loading(TOAST_MESSAGES.POST_CREATING, { id: "post-creation" });
 
       console.log("📡 mint.club SDK 호출 중...");
-      const receipt = await mintclub
-        .network(NETWORK.BASE_SEPOLIA)
+      await sdk
+        .network(NETWORK.BASE)
         .nft(nftSymbol)
         .create({
           ...nftParams,
+          onSignatureRequest: () => {
+            console.log("✍️ 서명 요청됨");
+            toast.loading("지갑에서 서명 요청 중...", { id: "post-creation" });
+          },
+          onSigned: (tx) => {
+            console.log("📨 트랜잭션 전송됨:", tx);
+            txHashRef.current = tx;
+            toast.loading(TOAST_MESSAGES.POST_CREATING, {
+              id: "post-creation",
+            });
+            scheduleIdleRefresh();
+          },
+          onSuccess: (rcpt) => {
+            console.log("✅ onSuccess 영수증:", rcpt);
+            toast.success(TOAST_MESSAGES.POST_SUCCESS, { id: "post-creation" });
+            clearIdleTimer();
+            try {
+              if (userToken?.tokenAddress) {
+                refreshPosts(userToken.tokenAddress);
+              }
+            } catch (e) {
+              console.error("포스트 새로고침 중 오류:", e);
+            }
+            onSuccess();
+            console.log("🎉 NFT 생성 성공!");
+          },
           onError: (error) => {
             console.error("💥 포스트 생성 중 오류 발생:", error);
           },
         });
-
-      console.log("🎉 NFT 생성 성공!");
-      toast.success(TOAST_MESSAGES.POST_SUCCESS, { id: "post-creation" });
-      onSuccess();
     } catch (error) {
       console.error("💥 포스트 생성 중 오류 발생:");
       console.error("🔍 에러 타입:", typeof error);
@@ -255,6 +354,41 @@ export default function CreatePostModal({
         toast.error("이미 존재하는 NFT 이름입니다. 다른 이름을 사용해주세요.", {
           id: "post-creation",
         });
+      } else if (
+        typeof errorMessage === "string" &&
+        errorMessage
+          .toLowerCase()
+          .includes("failed to get transaction receipt") &&
+        txHashRef.current &&
+        publicClient
+      ) {
+        // Fallback: try manual receipt wait if SDK receipt fetching failed
+        try {
+          toast.loading("영수증 재확인 중...", { id: "post-creation" });
+          const rcpt = await publicClient.waitForTransactionReceipt({
+            hash: txHashRef.current,
+            pollingInterval: 2000,
+            timeout: 60000,
+            confirmations: 1,
+          });
+          console.log("🧾 수동 영수증 확인 성공:", rcpt);
+          toast.success(TOAST_MESSAGES.POST_SUCCESS, { id: "post-creation" });
+          clearIdleTimer();
+          try {
+            if (userToken?.tokenAddress) {
+              refreshPosts(userToken.tokenAddress);
+            }
+          } catch (e2) {
+            console.error("포스트 새로고침 중 오류:", e2);
+          }
+          onSuccess();
+          return;
+        } catch (e) {
+          console.error("수동 영수증 확인 실패:", e);
+        }
+        toast.error(`포스트 생성에 실패했습니다: ${errorMessage}`, {
+          id: "post-creation",
+        });
       } else {
         toast.error(`포스트 생성에 실패했습니다: ${errorMessage}`, {
           id: "post-creation",
@@ -264,6 +398,7 @@ export default function CreatePostModal({
       console.log("🏁 NFT 생성 프로세스 종료");
       setCreating(false);
       setUploading(false);
+      clearIdleTimer();
     }
   };
 

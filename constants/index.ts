@@ -1,6 +1,7 @@
 /**
- * Yeonstagram (연스타그램) - 상수 정의
- * 앱에서 사용하는 모든 설정값과 상수들
+ * ewhagram (이화그램) - 상수 정의
+ * 앱에서 사용하는 모든 설정값과 상수들을 한 곳에서 관리합니다.
+ * 동작 변경 없이 가독성 향상을 위한 주석 정리만 수행합니다.
  */
 
 // 디자인 상수
@@ -9,18 +10,24 @@ export const DESIGN = {
   GRID_COLS: 3, // 인스타그램 스타일 그리드 컬럼 수
 } as const;
 
+export const SYMBOL = {
+  USER_TOKEN: "OWHA",
+} as const;
+
 // 네트워크 설정
 export const NETWORK = {
-  BASE_SEPOLIA: "basesepolia", // Base Sepolia 테스트넷
-  ETH_ADDRESS: "0x4200000000000000000000000000000000000006", // Base ETH 주소
+  BASE: "base", // Base 메인넷
 } as const;
+
+export const TEST_EWHA_TOKEN_ADDRESS =
+  "0x6E7009B73d3A13F6E232Aa329aEaEA6B3C67B1A5";
 
 // 토큰 생성 설정 (사용자 토큰)
 export const USER_TOKEN_CONFIG = {
   CURVE_TYPE: "EXPONENTIAL",
   STEP_COUNT: 100,
   MAX_SUPPLY: 1_000_000_000,
-  INITIAL_PRICE: 0.0000001, // 0.0000001 ETH
+  INITIAL_PRICE: 0.000001, // 0.0000001 ETH
   FINAL_PRICE: 0.1, // 0.1 ETH
   DECIMALS: 18,
 } as const;
@@ -30,8 +37,8 @@ export const NFT_CONFIG = {
   CURVE_TYPE: "LINEAR" as const,
   STEP_COUNT: 10,
   MAX_SUPPLY: 100,
-  INITIAL_PRICE: 0.0000001, // 0.0000001 ETH
-  FINAL_PRICE: 0.1, // 0.1 ETH
+  INITIAL_PRICE: 10, // 0.0000001 ETH
+  FINAL_PRICE: 1000, // 0.1 ETH
   CREATOR_ALLOCATION: 1,
   DECIMALS: 18,
 } as const;
@@ -62,4 +69,4 @@ export const TOAST_MESSAGES = {
 
 // 유틸리티 함수들
 export const createTokenSymbol = (username: string): string =>
-  `AWHA${username.toUpperCase()}`;
+  `${SYMBOL.USER_TOKEN}${username.toUpperCase()}`;

@@ -1,12 +1,12 @@
 /**
  * 포스트(NFT) 관리 훅
- * 사용자의 NFT 포스트 로딩 및 이미지 에러 처리
+ * 사용자의 NFT 포스트 로딩 및 이미지 에러 처리 (Mint Club REST API 사용)
  */
 
-import { useState } from "react";
-import { mintclub } from "mint.club-v2-sdk";
 import { Post } from "@/types";
-import { NETWORK } from "@/constants";
+import ky from "ky";
+import { useState } from "react";
+import { base } from "viem/chains";
 
 export const usePosts = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -15,57 +15,62 @@ export const usePosts = () => {
 
   /**
    * 사용자의 NFT 포스트 목록 로딩
+   * Mint Club API: /tokens/list를 사용해 reserveToken 기준 조회
    * @param tokenAddress 사용자 토큰 주소
    */
   const loadUserPosts = async (tokenAddress: string) => {
     setLoadingPosts(true);
     setImageErrors(new Set()); // 이전 이미지 에러 초기화
 
+    console.log("[EWHAGRAM] loadUserPosts reserve:", tokenAddress);
+
     try {
-      // 해당 토큰을 reserve token으로 사용하는 모든 NFT 주소 가져오기
-      const nftAddresses = await mintclub
-        .network(NETWORK.BASE_SEPOLIA)
-        .bond.getTokensByReserveToken({
-          reserveToken: tokenAddress as `0x${string}`,
-        });
+      // Mint Club REST API 클라이언트
+      const api = ky.create({ prefixUrl: "https://mint.club/api" });
 
-      console.log("NFT 주소 목록:", nftAddresses);
+      type MintClubToken = {
+        tokenAddress: string;
+        name: string;
+        symbol: string;
+        metadata?: { logo?: string | null } | null;
+      };
 
-      // 각 NFT의 상세 정보 가져오기
-      const nftDetails = await Promise.all(
-        nftAddresses.map(async (address) => {
-          try {
-            const nft = mintclub.network(NETWORK.BASE_SEPOLIA).nft(address);
-            const detail = await nft.getDetail();
+      type MintClubListResponse = {
+        data?: MintClubToken[];
+        tokens?: MintClubToken[];
+        count?: number;
+        sum?: unknown;
+        reserveToken?: {
+          tokenAddress: string;
+        };
+        pagination?: {
+          total: number;
+          page: number;
+          itemsPerPage: number;
+          totalPages: number;
+        };
+      };
 
-            // 이미지 URI 가져오기 (mint.club SDK 방식)
-            let imageUrl = "";
-            try {
-              const imageHash = await nft.getImageUri();
-              if (imageHash) {
-                imageUrl = mintclub.ipfs.hashToGatewayUrl(imageHash);
-              }
-            } catch {
-              console.log("이미지를 찾을 수 없음:", address);
-            }
+      const res = await api
+        .get("tokens/list", {
+          searchParams: {
+            chainId: String(base.id),
+            tokenType: "ERC1155",
+            itemsPerPage: "50",
+            page: "1",
+            v1: "false",
+            reserveToken: tokenAddress,
+          },
+        })
+        .json<MintClubListResponse>();
+      const tokens = (res.tokens ?? res.data ?? []) as MintClubToken[];
 
-            return {
-              tokenAddress: address,
-              name: detail.info.name,
-              symbol: detail.info.symbol,
-              image: imageUrl || undefined,
-            };
-          } catch (error) {
-            console.error("NFT 상세 정보 로딩 오류:", error);
-            return {
-              tokenAddress: address,
-              name: "Unknown",
-              symbol: "Unknown",
-              image: undefined,
-            };
-          }
-        }),
-      );
+      const nftDetails: Post[] = tokens.map((t) => ({
+        tokenAddress: t.tokenAddress,
+        name: t.name,
+        symbol: t.symbol,
+        image: (t.metadata?.logo ?? undefined) as string | undefined,
+      }));
 
       setPosts(nftDetails);
     } catch (error) {

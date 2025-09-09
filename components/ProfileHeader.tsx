@@ -1,6 +1,6 @@
 /**
- * 프로필 헤더 컴포넌트
- * 사용자 정보 표시 및 토큰 활성화 버튼
+ * KR: 프로필 헤더 - Farcaster 사용자 정보와 토큰 상태를 표시합니다.
+ * EN: Profile header - shows Farcaster user info and token status.
  */
 
 import { fadeInUp, spring, timing } from "@/lib/animations";
@@ -41,6 +41,8 @@ export default function ProfileHeader({
   }>({});
 
   useEffect(() => {
+    // KR: Farcaster Mini App SDK에서 사용자 컨텍스트를 읽어 사용자 프로필 표시
+    // EN: Read user context from Farcaster SDK to render profile
     (async () => {
       const ctx = await sdk.context;
       setUserData({
@@ -130,7 +132,7 @@ export default function ProfileHeader({
           </div>
 
           <motion.p
-            className="text-sm text-gray-500 mt-1 text-instagram-caption"
+            className="text-sm text-white/80 mt-1 text-instagram-caption"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: timing.normal }}
@@ -146,11 +148,13 @@ export default function ProfileHeader({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, ...spring.smooth }}
             >
-              <p className="text-sm text-gray-600 text-instagram-body">
-                토큰: {userToken.symbol}
+              <p className="text-sm text-green-500 text-instagram-body">
+                내 코인: {userToken.symbol}
               </p>
-              <p className="text-xs text-gray-500 text-instagram-caption font-mono">
-                {userToken.tokenAddress.slice(0, 8)}...
+              <p className="text-[10px] text-white/80 text-instagram-caption font-mono">
+                {userToken.tokenAddress.slice(0, 6) +
+                  "..." +
+                  userToken.tokenAddress.slice(-6)}
               </p>
             </motion.div>
           )}
