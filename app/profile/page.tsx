@@ -8,7 +8,6 @@ import { usePosts } from "@/hooks/usePosts";
 import { useUIStore } from "@/hooks/useUIStore";
 import { useUserToken } from "@/hooks/useUserToken";
 import { fadeIn, fadeInUp, spinnerAnimation, timing } from "@/lib/animations";
-import { sdk } from "@farcaster/miniapp-sdk";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
