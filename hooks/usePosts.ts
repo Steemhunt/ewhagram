@@ -3,6 +3,7 @@
  * 사용자의 NFT 포스트 로딩 및 이미지 에러 처리 (Mint Club REST API 사용)
  */
 
+import { resolveIpfsUrl } from "@/lib/ipfs";
 import { Post } from "@/types";
 import ky from "ky";
 import { useState } from "react";
@@ -69,7 +70,9 @@ export const usePosts = () => {
         tokenAddress: t.tokenAddress,
         name: t.name,
         symbol: t.symbol,
-        image: (t.metadata?.logo ?? undefined) as string | undefined,
+        image: resolveIpfsUrl(
+          (t.metadata?.logo ?? undefined) as string | undefined
+        ),
       }));
 
       setPosts(nftDetails);

@@ -1,6 +1,7 @@
 "use client";
 
 import { SYMBOL, TEST_EWHA_TOKEN_ADDRESS } from "@/constants";
+import { resolveIpfsUrl } from "@/lib/ipfs";
 import { useQuery } from "@tanstack/react-query";
 import ky from "ky";
 import { base } from "viem/chains";
@@ -118,29 +119,39 @@ async function fetchFeed(): Promise<FeedItem[]> {
     new Set(creators.map((c) => c.tokenAddress).filter(Boolean))
   );
 
-  const nftLists = await Promise.all(
-    creatorTokenAddresses.map((addr) => fetchNftsByReserveToken(addr))
-  );
+  // Throttle parallel requests to avoid 429
+  const concurrency = 3;
+  const chunks: string[][] = [];
+  for (let i = 0; i < creatorTokenAddresses.length; i += concurrency) {
+    chunks.push(creatorTokenAddresses.slice(i, i + concurrency));
+  }
 
-  const flat = nftLists.flat();
+  const results: MintClubToken[] = [];
+  for (const chunk of chunks) {
+    const part = await Promise.all(
+      chunk.map((addr) => fetchNftsByReserveToken(addr))
+    );
+    results.push(...part.flat());
+  }
 
-  const items: FeedItem[] = flat
+  console.log("[Feed] nft tokens count:", results.length);
+  const items: FeedItem[] = results
     .map((t) => ({
       tokenAddress: t.tokenAddress,
       name: t.name,
       symbol: t.symbol,
-      image: (t.metadata?.logo ?? undefined) as string | undefined,
+      image: resolveIpfsUrl(
+        (t.metadata?.logo ?? undefined) as string | undefined
+      ),
       creator: t.deployerFcUsername ?? "",
       createdAt: t.createdAt,
       priceForNextMint: t.priceForNextMint,
-      // API response for list by reserveToken includes top-level reserveToken in the response,
-      // but at this point we don't have it; we can retain undefined here since it's not used downstream.
     }))
     .filter((i) => !!i.image)
     .sort((a, b) => {
       const dateA = new Date(a.createdAt || 0).getTime();
       const dateB = new Date(b.createdAt || 0).getTime();
-      return dateB - dateA; // Most recent first
+      return dateB - dateA;
     });
   return items;
 }
