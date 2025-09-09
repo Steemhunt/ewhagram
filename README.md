@@ -459,6 +459,7 @@ ewhagram is an Ewha-themed Instagram-like mini app using Farcaster Mini App SDK 
 ```bash
 git clone https://github.com/steemhunt/ewhagram.git
 cd ewhagram
+git checkout workshop-todo
 npm install
 ```
 2) Env
