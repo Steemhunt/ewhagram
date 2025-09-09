@@ -246,7 +246,7 @@ npm install
 3. Access Keys → Create Key
 4. `.env.local` 파일 생성:
 ```bash
-NEXT_PUBLIC_FILEBASE_API_KEY=당신의_API_키
+FILEBASE_API_KEY=당신의_API_키
 ```
 
 #### 3. 네트워크 준비
