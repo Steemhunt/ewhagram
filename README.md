@@ -29,6 +29,7 @@ ewhagram은 이화여자대학교 감성을 담은 Instagram 스타일 미니 �
    ```bash
    git clone https://github.com/steemhunt/ewhagram.git
    cd ewhagram
+   git checkout workshop-todo
    ```
 
 2. **의존성 설치**
