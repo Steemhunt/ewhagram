@@ -9,6 +9,7 @@ import {
   spinnerAnimation,
   staggerContainer,
 } from "@/lib/animations";
+import { buildIpfsGatewayFallbacks } from "@/lib/ipfs";
 import { PostGridProps } from "@/types";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -113,7 +114,21 @@ export default function PostGrid({
               src={post.image}
               alt={post.name}
               className="w-full h-full object-cover"
-              onError={() => onImageError(post.tokenAddress)}
+              loading="lazy"
+              onError={(e) => {
+                console.warn("[PostGrid] image error", {
+                  tokenAddress: post.tokenAddress,
+                  url: post.image,
+                });
+                const fallbacks = buildIpfsGatewayFallbacks(post.image);
+                const img = e.currentTarget as HTMLImageElement;
+                const next = fallbacks.find((u) => u !== post.image);
+                if (next) {
+                  img.src = next;
+                } else {
+                  onImageError(post.tokenAddress);
+                }
+              }}
             />
             {/* Instagram-style hover overlay */}
             <motion.div

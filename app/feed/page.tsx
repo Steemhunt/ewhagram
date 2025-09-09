@@ -2,6 +2,7 @@
 
 import { createTokenSymbol } from "@/constants";
 import { useFeed } from "@/hooks/useFeed";
+import { buildIpfsGatewayFallbacks } from "@/lib/ipfs";
 import farcasterIcon from "@/public/farcaster.png";
 import {
   Bookmark,
@@ -106,6 +107,19 @@ export default function FeedPage() {
                 src={item.image}
                 alt={item.name}
                 className="w-full aspect-square object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  console.warn("[Feed] image error", {
+                    tokenAddress: item.tokenAddress,
+                    url: item.image,
+                  });
+                  const fallbacks = buildIpfsGatewayFallbacks(item.image);
+                  const img = e.currentTarget as HTMLImageElement;
+                  const next = fallbacks.find((u) => u !== item.image);
+                  if (next) {
+                    img.src = next;
+                  }
+                }}
               />
             ) : (
               <div className="w-full aspect-square bg-neutral-900 flex items-center justify-center">
