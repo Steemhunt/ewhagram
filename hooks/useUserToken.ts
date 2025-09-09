@@ -3,13 +3,7 @@
  * 사용자의 EWHA{USERNAME} 토큰 생성 및 조회 관리
  */
 
-import {
-  CREATOR_COIN_CONFIG,
-  getTokenSymbol,
-  NETWORK,
-  TEST_EWHA_TOKEN_ADDRESS,
-  TOAST_MESSAGES,
-} from "@/constants";
+import { CREATOR_COIN_CONFIG, NETWORK, TOAST_MESSAGES } from "@/constants";
 import { UserToken } from "@/types";
 import { mintclub } from "mint.club-v2-sdk";
 import { useState } from "react";
@@ -83,18 +77,15 @@ export const useUserToken = () => {
     console.log("토큰 생성 시작");
     toast.loading(TOAST_MESSAGES.TOKEN_CREATION, { id: "token-creation" });
 
-    // TODO Task 4: 토큰 심볼 생성 - createTokenSymbol 함수 사용
-    const tokenSymbol = getTokenSymbol(username);
+    /**
+     * TODO Task 4: 토큰 심볼/리저브 토큰 설정
+     * KR: tokenSymbol과 reserveToken.address를 채우세요.
+     * EN: Fill in tokenSymbol and reserveToken.address below.
+     */
+    const tokenSymbol = ""; // e.g., getTokenSymbol(username)
     console.log("생성할 토큰 심볼:", tokenSymbol);
 
     try {
-      // TODO: mint.club 토큰 생성
-      // mintclub.network(NETWORK.BASE).token(tokenSymbol).create({...})
-      /**
-       * TODO Task 4: mint.club 사용자 토큰 생성
-       * KR: 아래 create({...}) 호출을 완성해 온체인에서 토큰을 생성하세요.
-       * EN: Complete the create({...}) call to create the token on-chain.
-       */
       const curveData = {
         curveType: CREATOR_COIN_CONFIG.CURVE_TYPE,
         stepCount: CREATOR_COIN_CONFIG.STEP_COUNT,
@@ -103,42 +94,56 @@ export const useUserToken = () => {
         finalMintingPrice: CREATOR_COIN_CONFIG.FINAL_PRICE,
       };
 
+      const onSignatureRequest = () => {
+        console.log("✍️ 사용자 토큰 서명 요청");
+      };
+      const onSigned = (tx: any) => {
+        console.log("📨 사용자 토큰 트랜잭션 전송:", tx);
+      };
+      const onSuccess = async (receipt: any) => {
+        console.log("✅ 사용자 토큰 생성 onSuccess 영수증:", receipt);
+        // Poll until token exists to provide better UX
+        try {
+          const maxAttempts = 10;
+          for (let i = 0; i < maxAttempts; i++) {
+            const exists = await mintclub
+              .network(NETWORK.BASE)
+              .token(tokenSymbol)
+              .exists();
+            if (exists) {
+              await checkUserToken(username);
+              break;
+            }
+            await new Promise((r) => setTimeout(r, 2000));
+          }
+        } catch (e) {
+          console.error("토큰 존재 확인 중 오류:", e);
+        }
+      };
+      const onError = (error: any) => {
+        console.error("💥 사용자 토큰 생성 중 오류:", error);
+      };
+      // TODO: mint.club 토큰 생성
+      // mintclub.network(NETWORK.BASE).token(tokenSymbol).create({...})
+      /**
+       * TODO Task 4: mint.club 사용자 토큰 생성
+       * KR: 아래 create({...}) 호출을 완성해 온체인에서 토큰을 생성하세요.
+       * EN: Complete the create({...}) call to create the token on-chain.
+       */
       const result = await mintclub
         .network(NETWORK.BASE)
         .token(tokenSymbol)
         .create({
           name: tokenSymbol,
           reserveToken: {
-            address: TEST_EWHA_TOKEN_ADDRESS,
-            decimals: CREATOR_COIN_CONFIG.DECIMALS,
+            address: "???", // e.g., TEST_EWHA_TOKEN_ADDRESS
+            decimals: "???",
           },
           curveData: curveData,
-          onSignatureRequest: () => {
-            console.log("✍️ 사용자 토큰 서명 요청");
-          },
-          onSigned: (tx) => {
-            console.log("📨 사용자 토큰 트랜잭션 전송:", tx);
-          },
-          onSuccess: async (receipt) => {
-            console.log("✅ 사용자 토큰 생성 onSuccess 영수증:", receipt);
-            // Poll until token exists to provide better UX
-            try {
-              const maxAttempts = 10;
-              for (let i = 0; i < maxAttempts; i++) {
-                const exists = await mintclub
-                  .network(NETWORK.BASE)
-                  .token(tokenSymbol)
-                  .exists();
-                if (exists) {
-                  await checkUserToken(username);
-                  break;
-                }
-                await new Promise((r) => setTimeout(r, 2000));
-              }
-            } catch (e) {
-              console.error("토큰 존재 확인 중 오류:", e);
-            }
-          },
+          onSignatureRequest: onSignatureRequest,
+          onSigned: onSigned,
+          onSuccess: onSuccess,
+          onError: onError,
         });
       // const result = false;
 

@@ -9,9 +9,7 @@ import { useUIStore } from "@/hooks/useUIStore";
 import { useUserToken } from "@/hooks/useUserToken";
 import { fadeIn, fadeInUp, spinnerAnimation, timing } from "@/lib/animations";
 import { AnimatePresence, motion } from "motion/react";
-import { sdk } from "@farcaster/miniapp-sdk";
 import { useEffect, useState } from "react";
-
 
 /**
  * KR: 프로필 페이지 - Farcaster 컨텍스트를 불러와 사용자 토큰/NFT를 관리합니다.
@@ -30,19 +28,15 @@ export default function ProfilePage() {
 
   useEffect(() => {
     /**
-     * TODO Task 1: MiniKit 초기화 및 사용자 컨텍스트 표시
+     * TODO Task 2: 사용자 컨텍스트 가져오기 (setContext)
      *
-     * KR: Farcaster MiniKit을 초기화하고 사용자 컨텍스트(아이디/프로필 이미지)를 가져옵니다.
-     * EN: Initialize Farcaster MiniKit and fetch user context (username/pfp).
-     *
-     * 힌트(Hints):
-     * - await sdk.actions.ready();
-     * - const ctx = await sdk.context;
+     * KR: MiniKit이 준비된 상태에서 사용자 컨텍스트를 불러와 setContext에 저장하세요.
+     * EN: After MiniKit is ready, fetch user context and setContext.
      */
     (async () => {
-      // TODO: ready 후 컨텍스트를 setContext에 저장하세요
-        await sdk.actions.ready();
-        setContext(await sdk.context);
+      // TODO: 컨텍스트를 읽어와 setContext에 저장
+      // const ctx = await sdk.context;
+      // setContext(ctx);
     })();
   }, []);
 

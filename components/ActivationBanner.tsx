@@ -41,6 +41,11 @@ export default function ActivationBanner({
             </p>
           </div>
 
+          {/**
+           * TODO Task 3: 체크 완료 전까지 버튼 비활성화
+           * KR: checkingToken이 true면 버튼이 비활성화되어야 합니다. (현재 로직 확인/수정)
+           * EN: Ensure button stays disabled while checkingToken is true.
+           */}
           <motion.button
             type="button"
             onClick={() => {

@@ -77,8 +77,11 @@ async function fetchCreatorCoins(): Promise<MintClubToken[]> {
     })
     .json<MintClubListResponse>();
 
-  // KR: API 응답 로그(디버깅용). 필요 시 주석 처리 가능
-  // EN: API response log for debugging; safe to comment out later
+  /**
+   * TODO Task 5: 간단한 API 응답 확인 추가
+   * KR: 아래 로그로 API 응답의 형태를 확인해보세요. (필요 시 주석 처리)
+   * EN: Add a quick log to verify API response shape. (safe to comment out)
+   */
   console.log(res);
   const list = (res.tokens ?? res.data ?? []) as MintClubToken[];
   console.log("fetchCreatorCoins", list);
@@ -92,20 +95,18 @@ async function fetchCreatorCoins(): Promise<MintClubToken[]> {
 async function fetchNftsByReserveToken(
   reserveTokenAddress: string
 ): Promise<MintClubToken[]> {
-  console.log("fetchNftsByReserveToken", reserveTokenAddress);
   const res = await api
     .get("tokens/list", {
       searchParams: {
         chainId: String(base.id),
-        tokenType: "ERC1155",
-        itemsPerPage: "3",
-        page: "1",
-        v1: "false",
-        reserveToken: reserveTokenAddress,
+        tokenType: "???",
+        itemsPerPage: "???",
+        page: "???",
+        v1: "???",
+        reserveToken: "???",
       },
     })
     .json<MintClubListResponse>();
-  console.log(res);
   return (res.tokens ?? res.data ?? []) as MintClubToken[];
 }
 
@@ -123,7 +124,6 @@ async function fetchFeed(): Promise<FeedItem[]> {
 
   const flat = nftLists.flat();
 
-  console.log("flat", flat);
   const items: FeedItem[] = flat
     .map((t) => ({
       tokenAddress: t.tokenAddress,
@@ -147,7 +147,6 @@ async function fetchFeed(): Promise<FeedItem[]> {
 
 export function useFeed() {
   /**
-   * TODO Task 5: 피드 데이터 가져오기
    * KR: fetchFeed 구현을 확인하고, reserveToken 기반 ERC1155 리스트를 렌더링해보세요.
    * EN: Review fetchFeed and render ERC1155 list by reserveToken.
    */

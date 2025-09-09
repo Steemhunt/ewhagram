@@ -141,11 +141,14 @@ ewhagram은 이화여자대학교 감성을 담은 Instagram 스타일 미니 �
 데이터는 TanStack Query + ky를 통해 `https://mint.club/api/tokens/list`에서 가져옵니다.
 
 1) 크리에이터 코인(ERC20) 목록 조회
-- 파라미터: `chainId=8453`, `tokenType=ERC20`, `page=1`, `itemsPerPage=10`, `v1=false`, `reserveToken=NETWORK.ETH_ADDRESS`
+- 파라미터: `chainId=8453`, `tokenType=ERC20`, `page=1`, `itemsPerPage=10`, `v1=false`, `reserveToken=TEST_EWHA_TOKEN_ADDRESS`
 - `SYMBOL.USER_TOKEN` 접두사로 시작하는 심볼만 필터링
 
 2) 각 크리에이터 코인의 `tokenAddress`를 reserveToken으로 사용하여 NFT(ERC1155) 조회
 - 파라미터: `chainId=8453`, `tokenType=ERC1155`, `page=1`, `itemsPerPage=3`, `v1=false`, `reserveToken=<creatorCoinTokenAddress>`
+
+#### ✨ Task 5: API 응답 확인 (1분)
+`hooks/useFeed.ts`의 `fetchCreatorCoins`에서 응답을 `console.log`로 출력하여 API 사용법을 익혀봅니다.
 
 ## 🔑 환경변수 설정
 
@@ -258,39 +261,37 @@ Farcaster 미리보기/실기기 테스트용으로 외부 접근 URL이 필요�
 
 ---
 
-### ⚡ Task 1: MiniKit 초기화 (3분)
+### ⚡ Task 1: MiniKit 준비 (3분)
 
-**🎯 목표**: Farcaster MiniKit 연결하기
+**🎯 목표**: 앱 시작 시 MiniKit을 ready 상태로 전환하기
 
 **📍 파일**: `app/page.tsx`
 
 ```typescript
-/**
- * MiniKit 초기화
- */
-useEffect(() => {
-  // TODO: MiniKit SDK 초기화 코드 작성
-  // 힌트: sdk.actions.ready();
-}, []);
+// TODO: MiniKit ready 호출 후 "/profile"로 이동
+await sdk.actions.ready();
+window.location.href = "/profile";
 ```
 
-**💡 해결 방법**: `sdk.actions.ready();` 추가
-
-**✅ 성공 확인**: 브라우저에서 "연결됨" 상태 표시
+**✅ 성공 확인**: "/profile"로 이동
 
 ---
 
-### 👤 Task 2: 사용자 정보 표시 (Removed / 통합)
+### 👤 Task 2: 사용자 컨텍스트 가져오기 (3분)
 
-이제 Farcaster 사용자 컨텍스트는 `app/profile/page.tsx`에서 받아 `components/ProfileHeader.tsx`로 프롭스로 전달합니다. 헤더 컴포넌트 내 별도 TODO는 제거되었습니다.
+**🎯 목표**: MiniKit 준비 이후 사용자 컨텍스트를 불러와 상태로 보관하기
 
-**현재 구조**:
-- `app/profile/page.tsx`에서 `await sdk.actions.ready(); const ctx = await sdk.context;` 후 `user={ctx.user}`로 전달
-- `components/ProfileHeader.tsx`는 전달받은 `user`를 표시
+**📍 파일**: `app/profile/page.tsx`
+
+```typescript
+// TODO: 컨텍스트를 읽어와 setContext에 저장
+const ctx = await sdk.context;
+setContext(ctx);
+```
 
 ---
 
-### 🪙 Task 3: 토큰 존재 확인 (5분)
+### 🪙 Task 3: 토큰 존재 확인 + 버튼 게이트 (5분)
 
 **🎯 목표**: mint.club SDK로 사용자 토큰 존재 여부 확인하기
 
@@ -318,6 +319,8 @@ const exists = await mintclub.network(NETWORK.BASE).token(tokenSymbol).exists();
 
 **✅ 성공 확인**: 콘솔에 "토큰 존재 여부: false" 출력
 
+추가로 `components/ActivationBanner.tsx`에서 `checkingToken`이 true인 동안 버튼이 비활성화되는지 확인/수정합니다.
+
 ---
 
 ### 🎨 Task 4: 토큰 생성 (6분)
@@ -326,34 +329,18 @@ const exists = await mintclub.network(NETWORK.BASE).token(tokenSymbol).exists();
 
 **📍 파일**: `hooks/useUserToken.ts`
 
-**핵심 TODO 1개 (3단계):**
+**핵심 TODO 2개:**
 
 **주석 해제 후 수정하기** - 현재 `const result = false;`로 되어 있음
 
 ```typescript
-// TODO: mint.club 토큰 생성
-// mintclub.network(NETWORK.BASE).token(tokenSymbol).create({...})
-// const result = await mintclub
-//   .network(NETWORK.BASE)
-//   .token(tokenSymbol)
-//   .create({
-//     name: tokenSymbol,
-//     reserveToken: {
-//       address: NETWORK.ETH_ADDRESS,
-//       decimals: USER_TOKEN_CONFIG.DECIMALS,
-//     },
-//     curveData: {
-//       curveType: USER_TOKEN_CONFIG.CURVE_TYPE as const,
-//       stepCount: USER_TOKEN_CONFIG.STEP_COUNT,
-//       maxSupply: USER_TOKEN_CONFIG.MAX_SUPPLY,
-//       initialMintingPrice: USER_TOKEN_CONFIG.INITIAL_PRICE,
-//       finalMintingPrice: USER_TOKEN_CONFIG.FINAL_PRICE,
-//     },
-//   });
-const result = false; // 이 줄을 위 코드로 교체
+// 1) tokenSymbol 채우기 (예: getTokenSymbol(username))
+const tokenSymbol = "";
 
-// TODO: 토큰 상태 새로고침 - checkUserToken(username) 호출
-await /* TODO: checkUserToken 함수 호출 */ username; // 수정 필요
+// 2) reserveToken.address 채우기 (예: TEST_EWHA_TOKEN_ADDRESS)
+reserveToken: { address: "", decimals: CREATOR_COIN_CONFIG.DECIMALS }
+
+// 완료 후: await checkUserToken(username);
 ```
 
 **💡 해결 방법**: 
