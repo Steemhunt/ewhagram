@@ -159,8 +159,12 @@ export function useFeed() {
   return useQuery<FeedItem[]>({
     queryKey: ["feed", base.id, SYMBOL.USER_TOKEN],
     queryFn: fetchFeed,
-    staleTime: 60_000,
-    gcTime: 10_000,
+    staleTime: 0, // 데이터를 항상 stale로 간주
+    gcTime: 1_000, // 1초 후 가비지 컬렉션
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    refetchInterval: 20_000, // 5초마다 자동 refetch
+    refetchIntervalInBackground: false, // 백그라운드에서도 refetch
   });
 }
