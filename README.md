@@ -43,8 +43,9 @@ ewhagram은 이화여자대학교 감성을 담은 Instagram 스타일 미니 �
    
    `.env.local` 파일에 다음 값을 설정하세요:
    ```
-   NEXT_PUBLIC_FILEBASE_API_KEY=your_filebase_api_key
+   FILEBASE_API_KEY=your_filebase_api_key
    ```
+   -> 이미 env local 에다가 키 넣어놨음
 
 4. **개발 서버 실행**
    ```bash
@@ -469,7 +470,7 @@ npm install
 ```bash
 npm run dev
 ```
-4) Optional: expose with ngrok for Mini App testing.
+4) Optional: expose with ngrok for Mini App **testing**.
 
 ### Workshop TODOs (4–5 tasks)
 - Farcaster
