@@ -41,15 +41,18 @@ export default function ProfileHeader({
   }>({});
 
   useEffect(() => {
-    // KR: Farcaster Mini App SDK에서 사용자 컨텍스트를 읽어 사용자 프로필 표시
-    // EN: Read user context from Farcaster SDK to render profile
+    /**
+     * TODO Task 2: Farcaster 사용자 정보 표시
+     * KR: sdk.context 에서 사용자 정보를 읽어 userData 상태를 업데이트하세요.
+     * EN: Read user info from sdk.context and update userData state.
+     */
     (async () => {
-      const ctx = await sdk.context;
-      setUserData({
-        userName: ctx?.user?.username,
-        userPfpUrl: ctx?.user?.pfpUrl,
-        userFid: ctx?.user?.fid,
-      });
+      // const ctx = await sdk.context;
+      // setUserData({
+      //   userName: ctx?.user?.username,
+      //   userPfpUrl: ctx?.user?.pfpUrl,
+      //   userFid: ctx?.user?.fid,
+      // });
     })();
   }, []);
 

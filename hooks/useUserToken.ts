@@ -31,9 +31,12 @@ export const useUserToken = () => {
       // TODO: 토큰 심볼 생성 - `EWHA${username.toUpperCase()}`
       // const tokenSymbol = `EWHATEST`;
 
-      const tokenSymbol = createTokenSymbol(username);
-      // TODO: mint.club SDK로 토큰 존재 여부 확인
-      // mintclub.network(NETWORK.BASE).token(tokenSymbol).exists()
+      /**
+       * TODO Task 3: 토큰 존재 여부 확인
+       * KR: EWHA{USERNAME} 심볼을 만들고, exists()로 존재 여부를 확인하세요.
+       * EN: Create symbol EWHA{USERNAME} and check existence via exists().
+       */
+      const tokenSymbol = createTokenSymbol(username); // e.g., "EWHA" + username.toUpperCase()
       const exists = await mintclub
         .network(NETWORK.BASE)
         .token(tokenSymbol)
@@ -83,13 +86,18 @@ export const useUserToken = () => {
     console.log("토큰 생성 시작");
     toast.loading(TOAST_MESSAGES.TOKEN_CREATION, { id: "token-creation" });
 
-    // TODO: 토큰 심볼 생성 - createTokenSymbol 함수 사용
+    // TODO Task 4: 토큰 심볼 생성 - createTokenSymbol 함수 사용
     const tokenSymbol = createTokenSymbol(username);
     console.log("생성할 토큰 심볼:", tokenSymbol);
 
     try {
       // TODO: mint.club 토큰 생성
       // mintclub.network(NETWORK.BASE).token(tokenSymbol).create({...})
+      /**
+       * TODO Task 4: mint.club 사용자 토큰 생성
+       * KR: 아래 create({...}) 호출을 완성해 온체인에서 토큰을 생성하세요.
+       * EN: Complete the create({...}) call to create the token on-chain.
+       */
       const result = await mintclub
         .network(NETWORK.BASE)
         .token(tokenSymbol)
@@ -141,7 +149,7 @@ export const useUserToken = () => {
         console.log("토큰 생성 트랜잭션 전송됨");
         toast.success(TOAST_MESSAGES.TOKEN_SUCCESS, { id: "token-creation" });
 
-        // TODO: 토큰 상태 새로고침 - checkUserToken(username) 호출
+        // TODO Task 4: 토큰 상태 새로고침 - checkUserToken(username) 호출
         await checkUserToken(username);
         return true;
       }

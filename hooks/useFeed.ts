@@ -146,6 +146,11 @@ async function fetchFeed(): Promise<FeedItem[]> {
 }
 
 export function useFeed() {
+  /**
+   * TODO Task 5: 피드 데이터 가져오기
+   * KR: fetchFeed 구현을 확인하고, reserveToken 기반 ERC1155 리스트를 렌더링해보세요.
+   * EN: Review fetchFeed and render ERC1155 list by reserveToken.
+   */
   return useQuery<FeedItem[]>({
     queryKey: ["feed", base.id, SYMBOL.USER_TOKEN],
     queryFn: fetchFeed,
