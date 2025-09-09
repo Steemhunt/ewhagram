@@ -99,7 +99,7 @@ async function fetchNftsByReserveToken(
       searchParams: {
         chainId: String(base.id),
         tokenType: "ERC1155",
-        itemsPerPage: "3",
+        itemsPerPage: "5",
         page: "1",
         v1: "false",
         reserveToken: reserveTokenAddress,
@@ -160,7 +160,7 @@ export function useFeed() {
     queryKey: ["feed", base.id, SYMBOL.USER_TOKEN],
     queryFn: fetchFeed,
     staleTime: 60_000,
-    gcTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    gcTime: 10_000,
+    refetchOnWindowFocus: true,
   });
 }
