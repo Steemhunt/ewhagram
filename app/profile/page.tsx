@@ -28,11 +28,20 @@ export default function ProfilePage() {
   const username = userContext?.username;
 
   useEffect(() => {
-    // KR: Mini App 준비 상태 전환 후 컨텍스트 획득
-    // EN: Mark Mini App as ready, then get context
+    /**
+     * TODO Task 1: MiniKit 초기화 및 사용자 컨텍스트 표시
+     *
+     * KR: Farcaster MiniKit을 초기화하고 사용자 컨텍스트(아이디/프로필 이미지)를 가져옵니다.
+     * EN: Initialize Farcaster MiniKit and fetch user context (username/pfp).
+     *
+     * 힌트(Hints):
+     * - await sdk.actions.ready();
+     * - const ctx = await sdk.context;
+     */
     (async () => {
-      await sdk.actions.ready();
-      setContext(await sdk.context);
+      // TODO: ready 후 컨텍스트를 setContext에 저장하세요
+      // await sdk.actions.ready();
+      // setContext(await sdk.context);
     })();
   }, []);
 
