@@ -9,7 +9,9 @@ import { useUIStore } from "@/hooks/useUIStore";
 import { useUserToken } from "@/hooks/useUserToken";
 import { fadeIn, fadeInUp, spinnerAnimation, timing } from "@/lib/animations";
 import { AnimatePresence, motion } from "motion/react";
+import { sdk } from "@farcaster/miniapp-sdk";
 import { useEffect, useState } from "react";
+
 
 /**
  * KR: 프로필 페이지 - Farcaster 컨텍스트를 불러와 사용자 토큰/NFT를 관리합니다.
@@ -39,8 +41,8 @@ export default function ProfilePage() {
      */
     (async () => {
       // TODO: ready 후 컨텍스트를 setContext에 저장하세요
-      // await sdk.actions.ready();
-      // setContext(await sdk.context);
+        await sdk.actions.ready();
+        setContext(await sdk.context);
     })();
   }, []);
 
@@ -88,6 +90,7 @@ export default function ProfilePage() {
           userToken={userToken}
           checkingToken={checkingToken}
           onActivate={handleActivate}
+          user={userContext}
         />
 
         <ActivationBanner

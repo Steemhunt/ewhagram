@@ -4,11 +4,11 @@
  */
 
 import {
+  CREATOR_COIN_CONFIG,
+  getTokenSymbol,
   NETWORK,
   TEST_EWHA_TOKEN_ADDRESS,
   TOAST_MESSAGES,
-  USER_TOKEN_CONFIG,
-  createTokenSymbol,
 } from "@/constants";
 import { UserToken } from "@/types";
 import { mintclub } from "mint.club-v2-sdk";
@@ -28,19 +28,16 @@ export const useUserToken = () => {
 
     setCheckingToken(true);
     try {
-      // TODO: 토큰 심볼 생성 - `EWHA${username.toUpperCase()}`
-      // const tokenSymbol = `EWHATEST`;
+      // TODO: 토큰 심볼 생성 getTokenSymbol() 함수 사용
 
       /**
        * TODO Task 3: 토큰 존재 여부 확인
        * KR: EWHA{USERNAME} 심볼을 만들고, exists()로 존재 여부를 확인하세요.
        * EN: Create symbol EWHA{USERNAME} and check existence via exists().
        */
-      const tokenSymbol = createTokenSymbol(username); // e.g., "EWHA" + username.toUpperCase()
-      const exists = await mintclub
-        .network(NETWORK.BASE)
-        .token(tokenSymbol)
-        .exists();
+
+      const tokenSymbol = "DUMMYSYMBOL";
+      const exists = false;
 
       if (exists) {
         console.log("토큰이 존재합니다! 상세 정보를 가져옵니다...");
@@ -87,7 +84,7 @@ export const useUserToken = () => {
     toast.loading(TOAST_MESSAGES.TOKEN_CREATION, { id: "token-creation" });
 
     // TODO Task 4: 토큰 심볼 생성 - createTokenSymbol 함수 사용
-    const tokenSymbol = createTokenSymbol(username);
+    const tokenSymbol = getTokenSymbol(username);
     console.log("생성할 토큰 심볼:", tokenSymbol);
 
     try {
@@ -98,6 +95,14 @@ export const useUserToken = () => {
        * KR: 아래 create({...}) 호출을 완성해 온체인에서 토큰을 생성하세요.
        * EN: Complete the create({...}) call to create the token on-chain.
        */
+      const curveData = {
+        curveType: CREATOR_COIN_CONFIG.CURVE_TYPE,
+        stepCount: CREATOR_COIN_CONFIG.STEP_COUNT,
+        maxSupply: CREATOR_COIN_CONFIG.MAX_SUPPLY,
+        initialMintingPrice: CREATOR_COIN_CONFIG.INITIAL_PRICE,
+        finalMintingPrice: CREATOR_COIN_CONFIG.FINAL_PRICE,
+      };
+
       const result = await mintclub
         .network(NETWORK.BASE)
         .token(tokenSymbol)
@@ -105,15 +110,9 @@ export const useUserToken = () => {
           name: tokenSymbol,
           reserveToken: {
             address: TEST_EWHA_TOKEN_ADDRESS,
-            decimals: USER_TOKEN_CONFIG.DECIMALS,
+            decimals: CREATOR_COIN_CONFIG.DECIMALS,
           },
-          curveData: {
-            curveType: USER_TOKEN_CONFIG.CURVE_TYPE,
-            stepCount: USER_TOKEN_CONFIG.STEP_COUNT,
-            maxSupply: USER_TOKEN_CONFIG.MAX_SUPPLY,
-            initialMintingPrice: USER_TOKEN_CONFIG.INITIAL_PRICE,
-            finalMintingPrice: USER_TOKEN_CONFIG.FINAL_PRICE,
-          },
+          curveData: curveData,
           onSignatureRequest: () => {
             console.log("✍️ 사용자 토큰 서명 요청");
           },

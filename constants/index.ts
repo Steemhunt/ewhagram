@@ -11,7 +11,7 @@ export const DESIGN = {
 } as const;
 
 export const SYMBOL = {
-  USER_TOKEN: "OWHA",
+  USER_TOKEN: "EWHA",
 } as const;
 
 // 네트워크 설정
@@ -23,7 +23,7 @@ export const TEST_EWHA_TOKEN_ADDRESS =
   "0x6E7009B73d3A13F6E232Aa329aEaEA6B3C67B1A5";
 
 // 토큰 생성 설정 (사용자 토큰)
-export const USER_TOKEN_CONFIG = {
+export const CREATOR_COIN_CONFIG = {
   CURVE_TYPE: "EXPONENTIAL",
   STEP_COUNT: 100,
   MAX_SUPPLY: 1_000_000_000,
@@ -68,5 +68,5 @@ export const TOAST_MESSAGES = {
 } as const;
 
 // 유틸리티 함수들
-export const createTokenSymbol = (username: string): string =>
+export const getTokenSymbol = (username: string): string =>
   `${SYMBOL.USER_TOKEN}${username.toUpperCase()}`;

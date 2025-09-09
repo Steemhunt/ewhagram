@@ -5,56 +5,24 @@
 
 import { fadeInUp, spring, timing } from "@/lib/animations";
 import { ProfileHeaderProps } from "@/types";
-import { sdk } from "@farcaster/miniapp-sdk";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 export default function ProfileHeader({
   userToken,
   checkingToken,
   onActivate,
+  user,
 }: ProfileHeaderProps) {
-  {
-    /* 
-          TODO Task 2: 프로필 정보 표시
-          
-          🎯 목표: Farcaster 프로필 정보를 표시하세요
-          📝 힌트: const {context} = useMiniKit();
-          const userContext = context?.user;
-          const userName = userContext?.username;
-          const userPfpUrl = userContext?.pfpUrl;
-          const userFid = userContext?.fid;
-          
-        */
-  }
-
-  // const data = {
-  //   userName: "test",
-  //   userPfpUrl: "https://i.makeagif.com/media/12-12-2023/dKpfk7.gif",
-  //   userFid: 1111,
-  // };
-
-  const [userData, setUserData] = useState<{
-    userName?: string;
-    userPfpUrl?: string;
-    userFid?: number;
-  }>({});
-
-  useEffect(() => {
-    /**
-     * TODO Task 2: Farcaster 사용자 정보 표시
-     * KR: sdk.context 에서 사용자 정보를 읽어 userData 상태를 업데이트하세요.
-     * EN: Read user info from sdk.context and update userData state.
-     */
-    (async () => {
-      // const ctx = await sdk.context;
-      // setUserData({
-      //   userName: ctx?.user?.username,
-      //   userPfpUrl: ctx?.user?.pfpUrl,
-      //   userFid: ctx?.user?.fid,
-      // });
-    })();
-  }, []);
+  // KR: 페이지에서 전달받은 Farcaster 사용자 컨텍스트를 표시합니다.
+  // EN: Render Farcaster user context passed from the page.
+  const { userName, userPfpUrl, userFid } = useMemo(() => {
+    return {
+      userName: user?.username,
+      userPfpUrl: user?.pfpUrl,
+      userFid: user?.fid,
+    };
+  }, [user]);
 
   return (
     <motion.div
@@ -76,9 +44,9 @@ export default function ProfileHeader({
           transition={{ ...spring.smooth }}
         >
           {/* TODO: 프로필 이미지 조건부 렌더링 */}
-          {userData.userPfpUrl ? (
+          {userPfpUrl ? (
             <motion.img
-              src={userData.userPfpUrl}
+              src={userPfpUrl}
               alt="Profile"
               className="w-full h-full object-cover"
               initial={{ scale: 1.2, opacity: 0 }}
@@ -118,7 +86,7 @@ export default function ProfileHeader({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: timing.normal }}
             >
-              {userData.userName}
+              {userName}
             </motion.h1>
 
             {/* 토큰 상태에 따른 표시: 토큰 있을 때만 배지 노출 */}
@@ -140,7 +108,7 @@ export default function ProfileHeader({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: timing.normal }}
           >
-            FID: {userData.userFid}
+            FID: {userFid}
           </motion.p>
 
           {/* 토큰 정보 표시 */}

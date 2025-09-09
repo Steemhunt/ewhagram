@@ -44,4 +44,5 @@ export interface ProfileHeaderProps {
   userToken: UserToken | null;
   checkingToken: boolean;
   onActivate: () => void;
+  user?: UserContext;
 }

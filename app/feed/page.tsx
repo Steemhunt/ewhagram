@@ -1,6 +1,6 @@
 "use client";
 
-import { createTokenSymbol } from "@/constants";
+import { getTokenSymbol } from "@/constants";
 import { useFeed } from "@/hooks/useFeed";
 import farcasterIcon from "@/public/farcaster.png";
 import {
@@ -90,7 +90,7 @@ export default function FeedPage() {
                     {item.priceForNextMint
                       ? handleScientificNotation(item.priceForNextMint)
                       : 0}{" "}
-                    {createTokenSymbol(item.creator)}
+                    {getTokenSymbol(item.creator)}
                   </span>
                 </div>
               </div>

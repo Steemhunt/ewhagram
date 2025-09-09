@@ -280,38 +280,13 @@ useEffect(() => {
 
 ---
 
-### 👤 Task 2: 사용자 정보 표시 (4분)
+### 👤 Task 2: 사용자 정보 표시 (Removed / 통합)
 
-**🎯 목표**: Farcaster 프로필 정보 가져와서 화면에 표시하기
+이제 Farcaster 사용자 컨텍스트는 `app/profile/page.tsx`에서 받아 `components/ProfileHeader.tsx`로 프롭스로 전달합니다. 헤더 컴포넌트 내 별도 TODO는 제거되었습니다.
 
-**📍 파일**: `components/ProfileHeader.tsx`
-
-**핵심 TODO 3개:**
-
-1. **프로필 이미지**: `userContext?.pfpUrl` 조건부 렌더링
-2. **사용자명**: `userContext?.username || "사용자"`  
-3. **FID**: `userContext?.fid` (선택사항)
-
-```typescript
-// TODO 1: 프로필 이미지
-{userContext?.pfpUrl ? (
-  <img src={userContext.pfpUrl} alt="Profile" className="w-full h-full object-cover" />
-) : (
-  // 기본 아바타
-)}
-
-// TODO 2: 사용자명
-<h1 className="text-xl font-bold">
-  {userContext?.username || "사용자"}
-</h1>
-
-// TODO 3: FID (선택사항)
-{userContext?.fid && (
-  <p className="text-sm text-gray-500 mt-1">FID: {userContext.fid}</p>
-)}
-```
-
-**✅ 성공 확인**: 본인의 Farcaster 프로필 사진과 사용자명이 표시됨
+**현재 구조**:
+- `app/profile/page.tsx`에서 `await sdk.actions.ready(); const ctx = await sdk.context;` 후 `user={ctx.user}`로 전달
+- `components/ProfileHeader.tsx`는 전달받은 `user`를 표시
 
 ---
 
